@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - {{ site_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative">
+
+    <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-sm w-full border border-slate-700 transform transition-all hover:scale-[1.02] z-10">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                <i class="fa-solid fa-user-shield text-3xl text-blue-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white tracking-wider uppercase">{{ site_name }}</h2>
+            <p class="text-slate-400 text-sm mt-1">কন্ট্রোল প্যানেলে স্বাগতম</p>
+        </div>
+        
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="block text-slate-400 mb-1 text-sm font-semibold">ইমেইল (Email)</label>
+                <div class="relative">
+                    <i class="fa-solid fa-envelope absolute left-3 top-3.5 text-slate-500"></i>
+                    <input type="email" id="email" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="admin@gmail.com" required>
+                </div>
+            </div>
+            <div>
+                <label class="block text-slate-400 mb-1 text-sm font-semibold">পাসওয়ার্ড (Password)</label>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-3 top-3.5 text-slate-500"></i>
+                    <input type="password" id="password" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="••••••••" required>
+                </div>
+            </div>
+            
+            <!-- Error Message Box -->
+            <div id="error-msg" class="bg-red-500/10 border border-red-500/50 text-red-400 text-sm p-3 rounded-lg hidden text-center font-medium"></div>
+
+            <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 shadow-lg flex justify-center items-center gap-2">
+                <span>লগইন করুন</span>
+                <i class="fa-solid fa-right-to-bracket"></i>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyCvMIbiMnhJ2gu7qXysEzQi_goy5lDLMkk",
+          authDomain: "ff-auto-like.firebaseapp.com",
+          databaseURL: "https://ff-auto-like-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "ff-auto-like",
+          storageBucket: "ff-auto-like.firebasestorage.app",
+          messagingSenderId: "797068697315",
+          appId: "1:797068697315:web:7a6e242133aa2360c5afd6",
+          measurementId: "G-KB1LEXBDYZ"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+            const loginBtn = document.getElementById('loginBtn');
+
+            loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> যাচাই করা হচ্ছে...';
+            loginBtn.disabled = true;
+            loginBtn.classList.add('opacity-70');
+            errorMsg.classList.add('hidden');
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    if(user.uid === 'pieJbYzpzEgAIAw8YYzrfVqNcnE3') {
+                         window.location.href = '/dashboard'; 
+                    } else {
+                         errorMsg.innerText = "অ্যাক্সেস ডিনাইড! আপনি সঠিক এডমিন নন।";
+                         errorMsg.classList.remove('hidden');
+                         auth.signOut();
+                         resetButton();
+                    }
+                })
+                .catch((error) => {
+                    errorMsg.innerText = "ইমেইল বা পাসওয়ার্ড ভুল হয়েছে!";
+                    errorMsg.classList.remove('hidden');
+                    resetButton();
+                });
+
+            function resetButton() {
+                loginBtn.innerHTML = '<span>লগইন করুন</span> <i class="fa-solid fa-right-to-bracket"></i>';
+                loginBtn.disabled = false;
+                loginBtn.classList.remove('opacity-70');
+            }
+        });
+    </script>
+</body>
+</html>
